@@ -40,11 +40,11 @@ const envSchema = Joi.object({
     .default(8080),
   
   MONGO_URI: Joi.string()
-    .uri()
+    .pattern(/^mongodb(\+srv)?:\/\//)
     .required()
     .messages({
       'any.required': 'MONGO_URI is required in environment variables',
-      'string.uri': 'MONGO_URI must be a valid MongoDB connection string'
+      'string.pattern.base': 'MONGO_URI must be a valid MongoDB connection string'
     }),
   
   JWT_SECRET: Joi.string()
