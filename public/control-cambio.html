@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏪 Control de Cambio Manual - SuperMercado Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        
+        .info-card {
+            background: #f8f9fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .info-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .calculation {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2e7d2e;
+            margin: 15px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        .input-container input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .input-container input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .currency-symbol {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .btn-update {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-update:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result.loading {
+            background: #d1ecf1;
+            border: 2px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .result h4 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .result-details {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            color: #2e7d2e;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏪 Control de Cambio Manual</h1>
+            <p>Sistema de actualización de precios con cotización EUR personalizada</p>
+        </div>
+        
+        <div class="info-card">
+            <h3>📊 Información del Sistema</h3>
+            <p><strong>Valor REF base:</strong> 6 EUR por producto</p>
+            <p><strong>Método de cálculo:</strong> Precio = REF × Cotización EUR</p>
+            <div class="calculation" id="calculationDisplay">
+                6 EUR × 3.00 = 18.00 Bolívares
+            </div>
+        </div>
+        
+        <form id="priceUpdateForm">
+            <div class="form-group">
+                <label for="eurRate">💱 Cotización del Euro (Bolívares)</label>
+                <div class="input-container">
+                    <input 
+                        type="number" 
+                        id="eurRate" 
+                        name="eurRate"
+                        value="3.00" 
+                        step="0.01" 
+                        min="0.01" 
+                        max="1000"
+                        placeholder="Ej: 3.50"
+                        oninput="updateCalculation()"
+                        required
+                    >
+                    <span class="currency-symbol">Bs.</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-update" id="updateBtn">
+                💰 Actualizar Todos los Precios
+            </button>
+        </form>
+        
+        <div id="result" class="result">
+            <div id="resultContent"></div>
+        </div>
+        
+        <div class="footer">
+            <p>🔧 Sistema desarrollado para SuperMercado Online</p>
+            <p>Control de precios independiente de APIs externas</p>
+        </div>
+    </div>
+
+    <script>
+        function updateCalculation() {
+            const eurRate = parseFloat(document.getElementById('eurRate').value) || 0;
+            const calculation = document.getElementById('calculationDisplay');
+            const result = (6 * eurRate).toFixed(2);
+            calculation.textContent = `6 EUR × ${eurRate.toFixed(2)} = ${result} Bolívares`;
+        }
+        
+        function showResult(type, title, content, details = null) {
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            let html = `<h4>${title}</h4><p>${content}</p>`;
+            
+            if (details) {
+                html += '<div class="result-details">';
+                Object.entries(details).forEach(([key, value]) => {
+                    html += `
+                        <div class="detail-row">
+                            <span class="detail-label">${key}:</span>
+                            <span class="detail-value">${value}</span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            resultDiv.className = `result ${type}`;
+            resultContent.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+        
+        document.getElementById('priceUpdateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const eurRate = parseFloat(document.getElementById('eurRate').value);
+            const updateBtn = document.getElementById('updateBtn');
+            
+            // Validaciones
+            if (!eurRate || eurRate <= 0) {
+                showResult('error', '❌ Error de Validación', 'Por favor ingrese una cotización válida mayor a 0');
+                return;
+            }
+            
+            if (eurRate > 1000) {
+                showResult('error', '❌ Valor Excesivo', 'La cotización no puede exceder 1000 bolívares por euro');
+                return;
+            }
+            
+            // Mostrar loading
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<span class="loading-spinner"></span>Actualizando Precios...';
+            showResult('loading', '⏳ Procesando', 'Actualizando precios de todos los productos...');
+            
+            try {
+                const response = await fetch('/api/admin/emergency-update-prices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ eurRate })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const details = {
+                        'Productos actualizados': result.data.updatedCount,
+                        'Cotización aplicada': `${result.data.eurRate} Bs/EUR`,
+                        'Cálculo aplicado': result.data.calculation,
+                        'Timestamp': new Date(result.data.timestamp).toLocaleString('es-ES')
+                    };
+                    
+                    showResult('success', '🎉 Actualización Exitosa', 
+                        'Todos los precios han sido actualizados correctamente', details);
+                    
+                    // Actualizar cálculo visual
+                    updateCalculation();
+                    
+                } else {
+                    showResult('error', '❌ Error en Actualización', result.message || 'Error desconocido');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', '❌ Error de Conexión', 
+                    'No se pudo conectar con el servidor. Verifique que el servidor esté ejecutándose en el puerto 8080.');
+            } finally {
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = '💰 Actualizar Todos los Precios';
+            }
+        });
+        
+        // Inicializar cálculo
+        updateCalculation();
+        
+        // Actualizar cálculo en tiempo real
+        document.getElementById('eurRate').addEventListener('input', updateCalculation);
+    </script>
+</body>
+</html>

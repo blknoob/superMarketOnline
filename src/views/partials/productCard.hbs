@@ -1,0 +1,36 @@
+<div class="product-card">
+  <div class="product-img-container">
+    {{#if image}}
+      <img
+        class="product-img"
+        src="data:image/jpeg;base64,{{image}}"
+        alt="{{title}}"
+        style="max-width:60px; max-height:60px; border-radius:6px;"
+      />
+    {{else}}
+      <span style="color:#aaa;">Sin imagen</span>
+    {{/if}}
+  </div>
+  <h3 class="product-title">{{title}}</h3>
+  <p class="product-price"><strong>Ref:</strong> €{{ref}}</p>
+  <p class="product-price"><strong>Precio:</strong> 
+    {{#if priceMetadata}}
+      ${{price}} EUR
+      {{!-- <small style="color: #666; font-size: 0.9em;">
+        (Cotización: {{priceMetadata.rate}} - {{priceMetadata.source}})
+      </small> --}}
+    {{else}}
+      ${{price}}
+    {{/if}}
+  </p>
+  <p class="product-desc">{{description}}</p>
+  {{#if stock}}
+    <p class="product-stock"><strong>Stock:</strong> {{stock}}</p>
+    <form action="/cart/add" method="POST" class="product-form">
+      <input type="hidden" name="productId" value="{{_id}}" />
+      <button type="submit">Agregar al carrito</button>
+    </form>
+  {{else}}
+    <p class="product-nostock">Sin stock</p>
+  {{/if}}
+</div>

@@ -1,0 +1,51 @@
+<h2>Editar Producto</h2>
+
+{{#if product}}
+  <div style="margin-bottom:2rem;">
+    <strong>Título actual:</strong> {{product.title}}<br>
+    <strong>Descripción:</strong> {{product.description}}<br>
+    <strong>Categoría Principal:</strong> {{product.mainCategory}}<br>
+    <strong>Subcategoría:</strong> {{product.subCategory}}<br>
+    <strong>Código:</strong> {{product.code}}<br>
+    <strong>Precio:</strong> ${{product.price}}<br>
+    <strong>Stock:</strong> {{product.stock}}<br>
+    <strong>Imagen actual:</strong><br>
+    {{#if product.image}}
+      <img src="data:image/jpeg;base64,{{product.image}}" alt="{{product.title}}" style="max-width:120px; max-height:120px; border-radius:8px;">
+    {{else}}
+      <span style="color:#aaa;">Sin imagen</span>
+    {{/if}}
+  </div>
+
+  <form action="/admin/products/edit/{{product._id}}" method="POST" enctype="multipart/form-data" style="margin-bottom:2rem;">
+    <label for="title"><strong>Título:</strong></label>
+    <input type="text" id="title" name="title" value="{{product.title}}" required style="margin-right:1rem;">
+    <label for="description"><strong>Descripción:</strong></label>
+    <input type="text" id="description" name="description" value="{{product.description}}" required style="margin-right:1rem;">
+    
+    <label for="mainCategory"><strong>Categoría Principal:</strong></label>
+    <select id="mainCategory" name="mainCategory" required style="margin-right:1rem;">
+      <option value="">Seleccionar categoría...</option>
+      <option value="Alimentación" {{#eq product.mainCategory "Alimentación"}}selected{{/eq}}>Alimentación</option>
+      <option value="Limpieza" {{#eq product.mainCategory "Limpieza"}}selected{{/eq}}>Limpieza</option>
+      <option value="Higiene Personal" {{#eq product.mainCategory "Higiene Personal"}}selected{{/eq}}>Higiene Personal</option>
+      <option value="Bebidas" {{#eq product.mainCategory "Bebidas"}}selected{{/eq}}>Bebidas</option>
+      <option value="Hogar" {{#eq product.mainCategory "Hogar"}}selected{{/eq}}>Hogar</option>
+      <option value="Bebés y Niños" {{#eq product.mainCategory "Bebés y Niños"}}selected{{/eq}}>Bebés y Niños</option>
+    </select>
+    
+    <label for="subCategory"><strong>Subcategoría:</strong></label>
+    <input type="text" id="subCategory" name="subCategory" value="{{product.subCategory}}" required style="margin-right:1rem;" placeholder="Ej: Lácteos, Frutas y Verduras">
+    <label for="code"><strong>Código:</strong></label>
+    <input type="text" id="code" name="code" value="{{product.code}}" required style="margin-right:1rem;">
+    <label for="price"><strong>Precio:</strong></label>
+    <input type="number" id="price" name="price" step="0.01" min="0" value="{{product.price}}" required style="margin-right:1rem; width:80px;">
+    <label for="stock"><strong>Stock:</strong></label>
+    <input type="number" id="stock" name="stock" min="0" value="{{product.stock}}" required style="margin-right:1rem; width:60px;">
+    <label for="image"><strong>Nueva imagen:</strong></label>
+    <input type="file" id="image" name="image" accept="image/*" style="margin-right:1rem;">
+    <button type="submit" style="font-weight:bold;">Guardar Cambios</button>
+  </form>
+{{else}}
+  <p>Producto no encontrado.</p>
+{{/if}}

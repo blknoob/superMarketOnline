@@ -1,0 +1,38 @@
+<h2>Mi Carrito</h2>
+
+{{#if cart.products.length}}
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid #ccc; text-align:left;">Producto</th>
+        <th style="border-bottom:1px solid #ccc; text-align:right;">Precio</th>
+        <th style="border-bottom:1px solid #ccc; text-align:right;">Cantidad</th>
+        <th style="border-bottom:1px solid #ccc; text-align:right;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each cart.products}}
+        <tr>
+          <td>{{product.title}}</td>
+          <td style="text-align:right;">${{product.price}}</td>
+          <td style="text-align:right;">{{quantity}}</td>
+          <td style="text-align:right;">${{multiply product.price quantity}}</td>
+          <td style="text-align:right;">
+            <form action="/cart/remove" method="POST" style="display:inline;">
+              <input type="hidden" name="productId" value="{{product._id}}" />
+              <button type="submit" style="color:red;">Quitar</button>
+            </form>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <p style="text-align:right; font-weight:bold; margin-top:1rem;">
+    Total: ${{sumCartTotal cart.products}}
+  </p>
+  <form action="/cart/checkout" method="POST" style="text-align:right; margin-top:1rem;">
+    <button type="submit" style="font-weight:bold;">Finalizar compra</button>
+  </form>
+{{else}}
+  <p>Tu carrito está vacío.</p>
+{{/if}}

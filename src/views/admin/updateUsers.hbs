@@ -1,0 +1,31 @@
+<h2>Administrar Usuarios</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Rol actual</th>
+      <th>Cambiar rol</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each users}}
+    <tr>
+      <td>{{this._id}}</td>
+      <td>{{this.name}}</td>
+      <td>{{this.email}}</td>
+      <td>{{this.role}}</td>
+      <td>
+        <form method="POST" action="/admin/users/edit/{{this._id}}">
+          <select name="role">
+            <option value="user" {{#if (eq this.role 'user')}}selected{{/if}}>Usuario</option>
+            <option value="admin" {{#if (eq this.role 'admin')}}selected{{/if}}>Admin</option>
+          </select>
+          <button type="submit">Actualizar</button>
+        </form>
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

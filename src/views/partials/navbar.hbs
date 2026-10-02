@@ -1,0 +1,30 @@
+<nav class="navbar">
+  <a class="navbar-brand" href="/">
+    <img src="/images/logo.supermarket.png" alt="Supermarket online" class="navbar-logo">
+    <span class="navbar-title">Supermarket online</span>
+  </a>
+
+  <button class="navbar-toggle" aria-expanded="false" aria-controls="navbar-links" id="navToggle">
+    ☰
+  </button>
+
+  <div class="navbar-links" id="navbar-links">
+    {{#if user}}
+      <!-- Usuario autenticado -->
+      <span class="navbar-welcome">Bienvenido {{user.first_name}} {{user.last_name}}</span>
+      <a href="/">Productos</a>
+      <a href="/cart">Carrito</a>
+      <a href="/current">Perfil</a>
+      <a href="/tickets">Mis compras</a>
+      {{#if (eq user.role "admin")}}
+        <a href="/admin/panel">Panel Admin</a>
+      {{/if}}
+      <a href="/logout">Cerrar sesión</a>
+    {{else}}
+      <!-- Usuario no autenticado -->
+      <a href="/">Productos</a>
+      <a href="/login">Login</a>
+      <a href="/register">Registro</a>
+    {{/if}}
+  </div>
+</nav>

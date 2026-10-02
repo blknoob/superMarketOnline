@@ -1,0 +1,131 @@
+# OWASP - Docker Compose seguro para SuperMercado Online
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: supermercado-app
+    restart: unless-stopped
+    
+    # OWASP - Configuraciones de seguridad
+    security_opt:
+      - no-new-privileges:true
+    
+    # OWASP - Límites de recursos
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # OWASP - Usuario no privilegiado
+    user: "1001:1001"
+    
+    # OWASP - Sistema de archivos de solo lectura con volumes para escritura
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,mode=1777
+    
+    volumes:
+      # Solo directorios necesarios para escritura
+      - app_logs:/app/logs
+      - app_uploads:/app/uploads
+      - app_comprobantes:/app/public/comprobantes
+      - app_images:/app/public/images
+    
+    ports:
+      - "8080:8080"
+    
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+    
+    env_file:
+      - .env
+    
+    networks:
+      - app_network
+    
+    depends_on:
+      - mongodb
+    
+    # OWASP - Health check
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  mongodb:
+    image: mongo:7.0.14-jammy
+    container_name: supermercado-db
+    restart: unless-stopped
+    
+    # OWASP - Configuraciones de seguridad para MongoDB
+    security_opt:
+      - no-new-privileges:true
+    
+    # OWASP - Usuario no privilegiado para MongoDB
+    user: "999:999"
+    
+    # OWASP - Sistema de archivos de solo lectura
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,mode=1777
+    
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme123!}
+      MONGO_INITDB_DATABASE: entrega_final
+    
+    networks:
+      - app_network
+    
+    # OWASP - No exponer puerto MongoDB externamente
+    expose:
+      - "27017"
+    
+    # OWASP - Health check para MongoDB
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# OWASP - Configuración de red aislada
+networks:
+  app_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+# OWASP - Volúmenes con configuraciones de seguridad
+volumes:
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mongodb
+  mongodb_config:
+    driver: local
+  app_logs:
+    driver: local
+  app_uploads:
+    driver: local
+  app_comprobantes:
+    driver: local
+  app_images:
+    driver: local

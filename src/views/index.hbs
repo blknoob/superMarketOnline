@@ -1,0 +1,30 @@
+
+{{! Menú de categorías }}
+{{> categoriesMenu}}
+
+{{! Navegación breadcrumb general }}
+<div class="page-breadcrumb">
+  <span class="breadcrumb-item">
+    <a href="/">Inicio</a>
+  </span>
+  {{#if currentCategory}}
+    <span class="breadcrumb-separator">></span>
+    <span class="breadcrumb-item">{{currentCategory}}</span>
+  {{/if}}
+  {{#if currentSubCategory}}
+    <span class="breadcrumb-separator">></span>
+    <span class="breadcrumb-item current">{{currentSubCategory}}</span>
+  {{/if}}
+</div>
+
+<h1>Nuestros productos</h1>
+
+{{#if products}}
+  <div class="products-list">
+    {{#each products}}
+      {{> productCard}}
+    {{/each}}
+  </div>
+{{else}}
+  <p>No hay productos disponibles en esta categoría.</p>
+{{/if}}

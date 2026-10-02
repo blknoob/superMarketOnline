@@ -1,0 +1,72 @@
+<h2>Gestión de Productos</h2>
+
+<form action="/admin/products/new" method="POST" enctype="multipart/form-data" style="margin-bottom:1.5rem;">
+  <label for="title"><strong>Título:</strong></label>
+  <input type="text" id="title" name="title" required style="margin-right:1rem;">
+  <label for="description"><strong>Descripción:</strong></label>
+  <input type="text" id="description" name="description" required style="margin-right:1rem;">
+  
+  <label for="mainCategory"><strong>Categoría Principal:</strong></label>
+  <select id="mainCategory" name="mainCategory" required style="margin-right:1rem;">
+    <option value="">Seleccionar categoría...</option>
+    <option value="Alimentación">Alimentación</option>
+    <option value="Limpieza">Limpieza</option>
+    <option value="Higiene Personal">Higiene Personal</option>
+    <option value="Bebidas">Bebidas</option>
+    <option value="Hogar">Hogar</option>
+    <option value="Bebés y Niños">Bebés y Niños</option>
+  </select>
+  
+  <label for="subCategory"><strong>Subcategoría:</strong></label>
+  <input type="text" id="subCategory" name="subCategory" required style="margin-right:1rem;" placeholder="Ej: Lácteos, Frutas y Verduras">
+  
+  <label for="code"><strong>Código:</strong></label>
+  <input type="text" id="code" name="code" required style="margin-right:1rem;">
+  <label for="price"><strong>Precio:</strong></label>
+  <input type="number" id="price" name="price" step="0.01" min="0" required style="margin-right:1rem; width:80px;">
+  <label for="stock"><strong>Stock:</strong></label>
+  <input type="number" id="stock" name="stock" min="0" required style="margin-right:1rem; width:60px;">
+  <label for="image"><strong>Imagen:</strong></label>
+  <input type="file" id="image" name="image" accept="image/*" style="margin-right:1rem;">
+  <button type="submit" style="font-weight:bold;">Agregar</button>
+</form>
+
+{{#if products.length}}
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid #ccc; text-align:left;">Título</th>
+        <th style="border-bottom:1px solid #ccc; text-align:left;">Código</th>
+        <th style="border-bottom:1px solid #ccc; text-align:right;">Precio</th>
+        <th style="border-bottom:1px solid #ccc; text-align:right;">Stock</th>
+        <th style="border-bottom:1px solid #ccc; text-align:center;">Imagen</th>
+        <th style="border-bottom:1px solid #ccc; text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each products}}
+        <tr>
+          <td>{{title}}</td>
+          <td>{{code}}</td>
+          <td style="text-align:right;">${{price}}</td>
+          <td style="text-align:right;">{{stock}}</td>
+          <td style="text-align:center;">
+            {{#if image}}
+              <img src="{{image}}" alt="{{title}}" style="max-width:60px; max-height:60px; border-radius:6px;">
+            {{else}}
+              <span style="color:#aaa;">Sin imagen</span>
+            {{/if}}
+          </td>
+          <td style="text-align:right;">
+            <a href="/admin/products/edit/{{_id}}" style="margin-right:1rem;">Editar</a>
+            <form action="/admin/products/delete/{{_id}}" method="POST" style="display:inline;">
+              <button type="submit" style="color:red;">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <p>No hay productos registrados.</p>
+{{/if}}
