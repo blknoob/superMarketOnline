@@ -144,36 +144,6 @@ router.use("/api/admin", adminRouter);
 router.use("/auth", authRouter);
 
 /**
- * EMERGENCY FIX - Solo para resolver precios multiplicados
- */
-router.post("/emergency-fix", async (req, res) => {
-  try {
-    // Obtener productos
-    const ProductsModel = (await import('../repositories/daos/mongo/models/products.model.js')).default;
-    
-    // Fijar ref = 6 para todos los productos
-    const result = await ProductsModel.updateMany({}, { ref: 6 });
-    
-    res.json({
-      status: "success",
-      message: `REF fijado en 6 para ${result.modifiedCount} productos`,
-      data: {
-        fixedCount: result.modifiedCount,
-        timestamp: new Date().toISOString()
-      }
-    });
-    
-  } catch (error) {
-    console.error('Error fijando valores ref:', error);
-    res.status(500).json({
-      status: "error",
-      message: "Error interno del servidor",
-      error: error.message
-    });
-  }
-});
-
-/**
  * RUTAS DE VISTAS WEB
  * 
  * Router principal para renderizado de páginas web

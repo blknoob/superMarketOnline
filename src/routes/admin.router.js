@@ -240,23 +240,4 @@ router.post("/restore-prices", authenticateToken, isAdmin, adminController.resto
  */
 router.post("/fix-ref", authenticateToken, isAdmin, adminController.fixRefValues);
 
-/**
- * FIJAR REF EN VALOR CORRECTO - EMERGENCIA
- * POST /admin/emergency-fix-ref
- * 
- * Fija el campo ref en 6 para todos los productos
- * Para reparar valores de ref multiplicados incorrectamente
- * SIN AUTENTICACIÓN PARA EMERGENCIA
- */
-router.post("/emergency-fix-ref", adminController.fixRefValues);
-
-/**
- * ACTUALIZAR PRECIOS CON COTIZACIÓN EUR - EMERGENCIA
- * POST /admin/emergency-update-prices
- * 
- * Actualiza todos los precios aplicando cotización EUR manual
- * SIN AUTENTICACIÓN PARA EMERGENCIA - SOLO PARA TESTING
- */
-router.post("/emergency-update-prices", adminController.emergencyUpdatePrices);
-
 export default router;

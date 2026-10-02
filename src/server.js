@@ -206,9 +206,6 @@ app.get("/favicon.ico", (req, res) => {
   res.status(204).send();
 });
 
-// Handler para favicon.ico
-app.get("/favicon.ico", (req, res) => res.status(204).end());
-
 // Middlewares de seguridad OWASP (orden importante)
 app.use(detectAttacks);
 app.use(sanitizeInput);
