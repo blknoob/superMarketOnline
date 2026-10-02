@@ -285,8 +285,12 @@ const schemas = {
         .messages({
           'string.pattern.base': 'Password must contain uppercase, lowercase, number and special character'
         }),
-      // Edad: entero entre 13 y 120 años (cumple con COPPA)
-      age: Joi.number().integer().min(13).max(120).required()
+      // Fecha de nacimiento: mayor de 18 años (misma regla que el modelo de usuario)
+      birth_date: Joi.date().required().custom((value, helpers) => {
+        const limit = new Date();
+        limit.setFullYear(limit.getFullYear() - 18);
+        return value <= limit ? value : helpers.message('Debes ser mayor de 18 años para registrarte');
+      })
     }),
     
     // Esquema para inicio de sesión (menos restrictivo que registro)

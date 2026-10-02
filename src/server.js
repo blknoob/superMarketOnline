@@ -60,6 +60,7 @@ import {
 import jwt from "jsonwebtoken";
 
 import indexRouter from "./routes/index.router.js";
+import UsersService from "./services/users.service.js";
 
 dotenv.config();
 
@@ -258,6 +259,8 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
+    const admin = await new UsersService().ensureAdminUser();
+    if (admin) console.log(`Administrador inicial creado: ${admin.email}`);
     app.listen(PORT, () => {
       console.log(`Servidor iniciado en el puerto ${PORT}`);
     });

@@ -83,7 +83,7 @@ class UsersService {
    */
   async createUser(userData) {
     try {
-      const { first_name, last_name, age, email, password, role } = userData;
+      const { first_name, last_name, birth_date, email, password, role } = userData;
 
       if (!email || !password || !first_name || !last_name) {
         return {
@@ -110,7 +110,7 @@ class UsersService {
       const newUserData = {
         first_name,
         last_name,
-        age: age || null,
+        birth_date,
         email,
         password: hashedPassword,
         role: assignedRole,
@@ -602,6 +602,48 @@ class UsersService {
 
   async delete(id) {
     return await this.deleteUser(id);
+  }
+
+  /**
+   * CREAR ADMINISTRADOR INICIAL
+   * 
+   * Si no existe ningún usuario con rol admin, crea uno con
+   * ADMIN_EMAIL y ADMIN_PASSWORD del entorno. Se ejecuta al iniciar
+   * el servidor, así una base de datos nueva queda lista para usar.
+   * 
+   * @returns {Promise<Object|null>} Admin creado, o null si ya existía uno
+   */
+  async ensureAdminUser() {
+    const users = await this.repository.findAll();
+    if (users.some((user) => user.role === "admin")) return null;
+
+    const {
+      ADMIN_EMAIL,
+      ADMIN_PASSWORD,
+      ADMIN_FIRST_NAME = "Administrator",
+      ADMIN_LAST_NAME = "User",
+      ADMIN_AGE = 30,
+    } = process.env;
+
+    const birth_date = new Date();
+    birth_date.setFullYear(birth_date.getFullYear() - Number(ADMIN_AGE));
+
+    const response = await this.createUser({
+      first_name: ADMIN_FIRST_NAME,
+      last_name: ADMIN_LAST_NAME,
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+      birth_date,
+      role: "admin",
+    });
+
+    // El email ya existe como usuario normal: promoverlo a admin
+    if (response.error) {
+      const existing = await this.repository.findByEmail(ADMIN_EMAIL);
+      if (!existing) throw new Error(response.message);
+      return await this.repository.update(existing._id, { role: "admin" });
+    }
+    return response;
   }
 }
 
