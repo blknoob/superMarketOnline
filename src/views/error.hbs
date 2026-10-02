@@ -1,0 +1,15 @@
+<h2>{{title}}</h2>
+
+<div class="alert alert-danger">
+  <p>{{message}}</p>
+  {{#if errors}}
+    <ul>
+      {{#each errors}}
+        <li>{{this.message}}</li>
+      {{/each}}
+    </ul>
+  {{/if}}
+</div>
+
+<a href="javascript:history.back()" class="btn">Volver</a>
+<a href="/" class="btn">Ir al inicio</a>

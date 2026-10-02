@@ -124,7 +124,7 @@ export const requireAdmin = (req, res, next) => {
 
   if (req.user.role !== "admin") {
     if (req.accepts('html')) {
-      return res.render("permissions", {
+      return res.status(403).render("error", {
         title: "Sin Permisos",
         message: "Solo administradores pueden acceder a esta sección"
       });

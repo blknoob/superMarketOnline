@@ -60,7 +60,7 @@ const router = Router();
  * 
  * MIDDLEWARE: ensureAuth (autenticación requerida)
  * CONTROLLER: checkout.controller.showCheckout
- * RESPONSE: Renderizado de vista checkout/detail.hbs
+ * RESPONSE: Redirección a /cart
  * SECURITY: Solo usuario autenticado, validación de carrito no vacío
  */
 router.get("/checkout", ensureAuth, showCheckout);

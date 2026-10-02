@@ -32,34 +32,15 @@ const ordersService = new OrdersService();
  * MOSTRAR PÁGINA DE CHECKOUT
  * 
  * Endpoint: GET /checkout
- * Renderiza la página inicial del proceso de checkout
+ * Redirige a la vista del carrito, que muestra el resumen
+ * y el formulario para confirmar la compra (POST /cart/checkout)
  * 
- * FUNCIONALIDAD:
- * - Muestra resumen del carrito del usuario
- * - Formulario para datos de envío y facturación
- * - Botones para continuar o cancelar compra
- * - Cálculo de totales y impuestos
- * 
- * TEMPLATE RENDERIZADO:
- * - "checkout/checkout" con datos del carrito
- * - Incluye productos, cantidades, precios
- * - Formularios para información de usuario
- * 
- * DATOS REQUERIDOS:
- * - req.cart: Carrito del usuario (poblado por middleware)
- * - req.user: Usuario autenticado
- * 
- * @param {Object} req - Request con cart y user
+ * @param {Object} req - Request de Express
  * @param {Object} res - Response de Express
- * @param {Function} next - Next middleware para errores
- * @returns {Promise<void>} Template renderizado
+ * @returns {void} Redirección a /cart
  */
-export const showCheckout = async (req, res, next) => {
-  try {
-    // Aquí puedes obtener el carrito del usuario y mostrar el resumen
-    // Por simplicidad, asume que tienes el carrito en req.cart
-    res.render("checkout/checkout", { cart: req.cart });
-  } catch (e) { next(e); }
+export const showCheckout = (req, res) => {
+  res.redirect("/cart");
 };
 
 /**

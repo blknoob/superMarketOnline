@@ -62,7 +62,7 @@ export const authenticatePassport = passport.authenticate("jwt", {
  */
 export const requireAdmin = (req, res, next) => {
   if (req.user?.role !== "admin") {
-    return res.render("permissions", {
+    return res.status(403).render("error", {
       title: "Sin Permisos",
       message: "Solo administradores",
     });
