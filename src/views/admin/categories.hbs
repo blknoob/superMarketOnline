@@ -1,0 +1,50 @@
+{{> adminNav}}
+<h2>Categorías</h2>
+{{> flash}}
+
+<section class="card">
+  <h3>Nueva categoría</h3>
+  <form action="/admin/categories" method="POST" class="search-form">
+    <input name="name" placeholder="Nombre" required>
+    <select name="parentId">
+      <option value="">— Categoría principal —</option>
+      {{#each categories}}<option value="{{_id}}">{{label}}</option>{{/each}}
+    </select>
+    <input type="number" name="order" value="0" class="qty-input" title="Orden">
+    <button type="submit">Crear</button>
+  </form>
+</section>
+
+<p><small>
+  Cambiar el nombre o mover una categoría actualiza toda su rama y los productos que contiene.
+  Solo se pueden eliminar categorías sin subcategorías ni productos.
+</small></p>
+
+<table class="table">
+  <thead>
+    <tr><th>Nombre</th><th>Categoría madre</th><th class="num">Orden</th><th>Visible</th><th></th></tr>
+  </thead>
+  <tbody>
+    {{#each categories}}
+      <tr {{#unless isActive}}class="row-muted"{{/unless}}>
+        <td colspan="5">
+          <form action="/admin/categories/{{_id}}" method="POST" class="category-row">
+            <span class="indent" style="width: {{depth}}.5rem"></span>
+            <input name="name" value="{{name}}" required>
+            <select name="parentId">
+              <option value="">— Categoría principal —</option>
+              {{#each @root.categories}}
+                <option value="{{_id}}" {{#if (eq _id ../parent)}}selected{{/if}}>{{label}}</option>
+              {{/each}}
+            </select>
+            <input type="number" name="order" value="{{order}}" class="qty-input">
+            <label class="checkbox"><input type="checkbox" name="isActive" {{#if isActive}}checked{{/if}}> Visible</label>
+            <button type="submit" class="btn-small">Guardar</button>
+            <button type="submit" class="btn-small btn-danger" formaction="/admin/categories/{{_id}}/delete"
+              onclick="return confirm('¿Eliminar {{name}}?')">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

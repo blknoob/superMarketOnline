@@ -1,105 +1,24 @@
-{{! Menú de categorías y subcategorías }}
+{{! Menú de categorías: se arma con el árbol guardado en la base (res.locals.categoryTree) }}
 <div class="categories-menu">
-  <h3 class="categories-title"> Categorías</h3>
-  
-  <div class="category-item">
-    <a href="/" class="category-link {{#unless currentCategory}}active{{/unless}}">
-      Todos los productos
-    </a>
-  </div>
+  <h3 class="categories-title">Categorías</h3>
 
   <div class="category-item">
-    <div class="category-main {{#if (eq currentCategory 'Alimentación')}}active{{/if}}">
-      <a href="/?category=Alimentación" class="category-link">
-        Alimentación
-      </a>
-      <span class="category-toggle">▼</span>
-    </div>
-    <div class="subcategories {{#if (eq currentCategory 'Alimentación')}}show{{/if}}">
-      <a href="/?category=Alimentación&subcategory=Lácteos" class="subcategory-link {{#if (eq currentSubCategory 'Lácteos')}}active{{/if}}">Lácteos</a>
-      <a href="/?category=Alimentación&subcategory=Carnes y Pollo" class="subcategory-link {{#if (eq currentSubCategory 'Carnes y Pollo')}}active{{/if}}">Carnes y Pollo</a>
-      <a href="/?category=Alimentación&subcategory=Frutas" class="subcategory-link {{#if (eq currentSubCategory 'Frutas')}}active{{/if}}">Frutas</a>
-      <a href="/?category=Alimentación&subcategory=Verduras" class="subcategory-link {{#if (eq currentSubCategory 'Verduras')}}active{{/if}}">Verduras</a>
-      <a href="/?category=Alimentación&subcategory=Panadería" class="subcategory-link {{#if (eq currentSubCategory 'Panadería')}}active{{/if}}">Panadería</a>
-      <a href="/?category=Alimentación&subcategory=Huevos y Derivados" class="subcategory-link {{#if (eq currentSubCategory 'Huevos y Derivados')}}active{{/if}}">Huevos y Derivados</a>
-      <a href="/?category=Alimentación&subcategory=Despensa" class="subcategory-link {{#if (eq currentSubCategory 'Despensa')}}active{{/if}}">Despensa</a>
-      <a href="/?category=Alimentación&subcategory=Congelados" class="subcategory-link {{#if (eq currentSubCategory 'Congelados')}}active{{/if}}">Congelados</a>
-    </div>
+    <a href="/" class="category-link {{#unless @root.currentCategorySlug}}active{{/unless}}">Todos los productos</a>
   </div>
 
-  <div class="category-item">
-    <div class="category-main {{#if (eq currentCategory 'Limpieza')}}active{{/if}}">
-      <a href="/?category=Limpieza" class="category-link">
-        Limpieza
-      </a>
-      <span class="category-toggle">▼</span>
+  {{#each @root.categoryTree}}
+    <div class="category-item">
+      <div class="category-main {{#if (eq slug @root.activeRootSlug)}}active{{/if}}">
+        <a href="/?category={{slug}}" class="category-link">{{name}}</a>
+        {{#if children.length}}<span class="category-toggle">▼</span>{{/if}}
+      </div>
+      {{#if children.length}}
+        <div class="subcategories {{#if (eq slug @root.activeRootSlug)}}show{{/if}}">
+          {{#each children}}
+            <a href="/?category={{slug}}" class="subcategory-link {{#if (eq slug @root.currentCategorySlug)}}active{{/if}}">{{name}}</a>
+          {{/each}}
+        </div>
+      {{/if}}
     </div>
-    <div class="subcategories {{#if (eq currentCategory 'Limpieza')}}show{{/if}}">
-      <a href="/?category=Limpieza&subcategory=Productos de Limpieza" class="subcategory-link {{#if (eq currentSubCategory 'Productos de Limpieza')}}active{{/if}}">Productos de Limpieza</a>
-      <a href="/?category=Limpieza&subcategory=Papel Higiénico y Servilletas" class="subcategory-link {{#if (eq currentSubCategory 'Papel Higiénico y Servilletas')}}active{{/if}}">Papel y Servilletas</a>
-      <a href="/?category=Limpieza&subcategory=Detergentes" class="subcategory-link {{#if (eq currentSubCategory 'Detergentes')}}active{{/if}}">Detergentes</a>
-      <a href="/?category=Limpieza&subcategory=Desinfectantes" class="subcategory-link {{#if (eq currentSubCategory 'Desinfectantes')}}active{{/if}}">Desinfectantes</a>
-    </div>
-  </div>
-
-  <div class="category-item">
-    <div class="category-main {{#if (eq currentCategory 'Higiene Personal')}}active{{/if}}">
-      <a href="/?category=Higiene Personal" class="category-link">
-       Higiene Personal
-      </a>
-      <span class="category-toggle">▼</span>
-    </div>
-    <div class="subcategories {{#if (eq currentCategory 'Higiene Personal')}}show{{/if}}">
-      <a href="/?category=Higiene Personal&subcategory=Cuidado Personal" class="subcategory-link {{#if (eq currentSubCategory 'Cuidado Personal')}}active{{/if}}">Cuidado Personal</a>
-      <a href="/?category=Higiene Personal&subcategory=Cuidado del Cabello" class="subcategory-link {{#if (eq currentSubCategory 'Cuidado del Cabello')}}active{{/if}}">Cuidado del Cabello</a>
-      <a href="/?category=Higiene Personal&subcategory=Cuidado Oral" class="subcategory-link {{#if (eq currentSubCategory 'Cuidado Oral')}}active{{/if}}">Cuidado Oral</a>
-      <a href="/?category=Higiene Personal&subcategory=Perfumería" class="subcategory-link {{#if (eq currentSubCategory 'Perfumería')}}active{{/if}}">Perfumería</a>
-    </div>
-  </div>
-
-  <div class="category-item">
-    <div class="category-main {{#if (eq currentCategory 'Bebidas')}}active{{/if}}">
-      <a href="/?category=Bebidas" class="category-link">
-       Bebidas
-      </a>
-      <span class="category-toggle">▼</span>
-    </div>
-    <div class="subcategories {{#if (eq currentCategory 'Bebidas')}}show{{/if}}">
-      <a href="/?category=Bebidas&subcategory=Gaseosas" class="subcategory-link {{#if (eq currentSubCategory 'Gaseosas')}}active{{/if}}">Gaseosas</a>
-      <a href="/?category=Bebidas&subcategory=Jugos" class="subcategory-link {{#if (eq currentSubCategory 'Jugos')}}active{{/if}}">Jugos</a>
-      <a href="/?category=Bebidas&subcategory=Agua" class="subcategory-link {{#if (eq currentSubCategory 'Agua')}}active{{/if}}">Agua</a>
-      <a href="/?category=Bebidas&subcategory=Bebidas Alcohólicas" class="subcategory-link {{#if (eq currentSubCategory 'Bebidas Alcohólicas')}}active{{/if}}">Bebidas Alcohólicas</a>
-      <a href="/?category=Bebidas&subcategory=Bebidas Calientes" class="subcategory-link {{#if (eq currentSubCategory 'Bebidas Calientes')}}active{{/if}}">Bebidas Calientes</a>
-    </div>
-  </div>
-
-  <div class="category-item">
-    <div class="category-main {{#if (eq currentCategory 'Hogar')}}active{{/if}}">
-      <a href="/?category=Hogar" class="category-link">
-       Hogar
-      </a>
-      <span class="category-toggle">▼</span>
-    </div>
-    <div class="subcategories {{#if (eq currentCategory 'Hogar')}}show{{/if}}">
-      <a href="/?category=Hogar&subcategory=Utensilios" class="subcategory-link {{#if (eq currentSubCategory 'Utensilios')}}active{{/if}}">Utensilios</a>
-      <a href="/?category=Hogar&subcategory=Decoración" class="subcategory-link {{#if (eq currentSubCategory 'Decoración')}}active{{/if}}">Decoración</a>
-      <a href="/?category=Hogar&subcategory=Jardinería" class="subcategory-link {{#if (eq currentSubCategory 'Jardinería')}}active{{/if}}">Jardinería</a>
-      <a href="/?category=Hogar&subcategory=Electrodomésticos" class="subcategory-link {{#if (eq currentSubCategory 'Electrodomésticos')}}active{{/if}}">Electrodomésticos</a>
-    </div>
-  </div>
-
-  <div class="category-item">
-    <div class="category-main {{#if (eq currentCategory 'Bebés y Niños')}}active{{/if}}">
-      <a href="/?category=Bebés y Niños" class="category-link">
-       Bebés y Niños
-      </a>
-      <span class="category-toggle">▼</span>
-    </div>
-    <div class="subcategories {{#if (eq currentCategory 'Bebés y Niños')}}show{{/if}}">
-      <a href="/?category=Bebés y Niños&subcategory=Pañales" class="subcategory-link {{#if (eq currentSubCategory 'Pañales')}}active{{/if}}">Pañales</a>
-      <a href="/?category=Bebés y Niños&subcategory=Alimentos Infantiles" class="subcategory-link {{#if (eq currentSubCategory 'Alimentos Infantiles')}}active{{/if}}">Alimentos Infantiles</a>
-      <a href="/?category=Bebés y Niños&subcategory=Cuidado del Bebé" class="subcategory-link {{#if (eq currentSubCategory 'Cuidado del Bebé')}}active{{/if}}">Cuidado del Bebé</a>
-      <a href="/?category=Bebés y Niños&subcategory=Juguetes" class="subcategory-link {{#if (eq currentSubCategory 'Juguetes')}}active{{/if}}">Juguetes</a>
-    </div>
-  </div>
+  {{/each}}
 </div>

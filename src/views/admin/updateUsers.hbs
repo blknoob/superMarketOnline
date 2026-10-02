@@ -1,3 +1,4 @@
+{{> adminNav}}
 <h2>Administrar Usuarios</h2>
 <table class="table">
   <thead>
@@ -17,7 +18,7 @@
       <td>{{this.email}}</td>
       <td>{{this.role}}</td>
       <td>
-        <form method="POST" action="/admin/users/edit/{{this._id}}">
+        <form method="POST" action="/admin/users/{{this._id}}/role">
           <select name="role">
             <option value="user" {{#if (eq this.role 'user')}}selected{{/if}}>Usuario</option>
             <option value="admin" {{#if (eq this.role 'admin')}}selected{{/if}}>Admin</option>

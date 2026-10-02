@@ -1,0 +1,23 @@
+<h2>Mis pedidos</h2>
+{{> flash}}
+
+{{#if orders.length}}
+  <table class="table">
+    <thead>
+      <tr><th>Pedido</th><th>Fecha</th><th>Estado</th><th class="num">Total</th><th></th></tr>
+    </thead>
+    <tbody>
+      {{#each orders}}
+        <tr>
+          <td>{{number}}</td>
+          <td>{{formatDate createdAt}}</td>
+          <td><span class="badge badge-{{status}}">{{statusLabel}}</span></td>
+          <td class="num">Bs {{money total}}</td>
+          <td class="num"><a href="/orders/{{_id}}">Ver</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <p>Todavía no hiciste ningún pedido. <a href="/">Ir a comprar</a></p>
+{{/if}}

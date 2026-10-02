@@ -1,0 +1,78 @@
+<p><a href="/orders">‹ Mis pedidos</a></p>
+<h2>Pedido {{order.number}}</h2>
+{{> flash}}
+
+<p>
+  <span class="badge badge-{{order.status}}">{{order.statusLabel}}</span>
+  · {{formatDate order.createdAt}}
+</p>
+
+<table class="table">
+  <thead>
+    <tr><th>Producto</th><th class="num">Precio</th><th class="num">Cantidad</th><th class="num">Subtotal</th></tr>
+  </thead>
+  <tbody>
+    {{#each order.items}}
+      <tr>
+        <td>{{name}} <small>({{presentation unitSize unit}} · {{sku}})</small></td>
+        <td class="num">Bs {{money price}}</td>
+        <td class="num">{{quantity}}</td>
+        <td class="num">Bs {{money subtotal}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<div class="totals">
+  <p>Subtotal: Bs {{money order.subtotal}}</p>
+  <p>Envío: Bs {{money order.shippingCost}}</p>
+  <p><strong>Total: Bs {{money order.total}}</strong> <small>(Ref. € {{money order.totalRef}} · tasa Bs {{money order.exchangeRate}})</small></p>
+</div>
+
+<h3>Envío</h3>
+<p>
+  {{order.shippingAddress.recipient}} ({{order.shippingAddress.phone}})<br>
+  {{order.shippingAddress.line1}}{{#if order.shippingAddress.line2}}, {{order.shippingAddress.line2}}{{/if}},
+  {{order.shippingAddress.city}}, {{order.shippingAddress.state}}
+  {{#if order.shippingAddress.reference}}<br><small>Ref: {{order.shippingAddress.reference}}</small>{{/if}}
+</p>
+
+{{#if payments.length}}
+  <h3>Pagos reportados</h3>
+  <table class="table">
+    <thead><tr><th>Fecha</th><th>Método</th><th>Referencia</th><th class="num">Monto</th><th>Estado</th></tr></thead>
+    <tbody>
+      {{#each payments}}
+        <tr>
+          <td>{{formatDate createdAt}}</td>
+          <td>{{methodLabel}}</td>
+          <td>{{reference}}</td>
+          <td class="num">{{money amount}} {{currency}}</td>
+          <td><span class="badge badge-payment-{{status}}">{{#if (eq status "pending")}}En revisión{{else if (eq status "approved")}}Aprobado{{else}}Rechazado{{/if}}</span></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{/if}}
+
+{{#if awaitingPayment}}
+  <h3>Reportar pago</h3>
+  <p>Total a pagar: <strong>Bs {{money order.total}}</strong></p>
+  <form action="/orders/{{order._id}}/payments" method="POST" enctype="multipart/form-data" class="stacked-form">
+    <label>Método
+      <select name="method" required>
+        <option value="pago_movil">Pago Móvil (Bs)</option>
+        <option value="transferencia">Transferencia (Bs)</option>
+        <option value="zelle">Zelle (USD)</option>
+      </select>
+    </label>
+    <label>Monto <input type="number" name="amount" step="0.01" min="0.01" value="{{order.total}}" required></label>
+    <label>Número de referencia <input name="reference" required></label>
+    <label>Banco <input name="bank" placeholder="Pago Móvil / Transferencia"></label>
+    <label>Teléfono <input name="phone" placeholder="Pago Móvil"></label>
+    <label>Cédula / RIF <input name="docId" placeholder="Pago Móvil / Transferencia"></label>
+    <label>Email <input type="email" name="email" placeholder="Zelle"></label>
+    <label>Comprobante (imagen) <input type="file" name="proof" accept="image/*"></label>
+    <button type="submit">Reportar pago</button>
+  </form>
+{{/if}}

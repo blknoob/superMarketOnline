@@ -1,112 +1,31 @@
-<h2>Panel de Administración</h2>
+{{> adminNav}}
+<h2>Panel de administración</h2>
+{{> flash}}
 
-<!-- Enlaces de navegación -->
-<nav style="margin-bottom:2rem;">
-  <a href="/admin/products" style="margin-right:1.5rem; font-weight:bold;">Gestionar Productos</a>
-  <a href="/admin/users" style="margin-right:1.5rem; font-weight:bold;">Gestionar Usuarios</a>
-</nav>
-
-<!-- Panel de Cotización EUR -->
-<div
-  class="currency-panel"
-  style="
-  background: rgb(111, 151, 111);
-  color: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  max-width: 400px;
-"
->
-  <h3 style="margin: 0 0 15px 0; display: flex; align-items: center;">
-    💱 Cotización EUR
-    <button
-      id="save-rate-btn"
-      style="
-      margin-left: auto;
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 12px;
-    "
-    >💾 Actualizar Precios</button>
-  </h3>
-
-  <div class="rate-display" style="text-align: center; margin-bottom: 15px;">
-    <input
-      id="eur-price-input"
-      type="number"
-      step="0.0001"
-      min="0"
-      placeholder="0.00"
-      value="{{#if currentEurRate}}{{currentEurRate}}{{else}}2.0000{{/if}}"
-      style="
-        font-size: 24px; 
-        font-weight: bold; 
-        color: #333;
-        background: rgba(255,255,255,0.9);
-        border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 8px;
-        padding: 8px 12px;
-        text-align: center;
-        width: 160px;
-        margin-right: 8px;
-      "
-    />
-    <span style="font-size: 24px; font-weight: bold; color: #fef3c7;">EUR</span>
+{{#if pendingPaymentsCount}}
+  <div class="alert alert-info">
+    Hay {{pendingPaymentsCount}} pago(s) por revisar. <a href="/admin/orders?status=payment_review">Ver pedidos</a>
   </div>
+{{/if}}
 
-  <div style="font-size: 11px; opacity: 0.7; text-align: center;">
-    Solo clic en "Actualizar Precios" para aplicar cambios<br>
-    Fórmula: REF × EUR = Precio Final
-    {{#if isDefault}}
-      <br><small>Valor por defecto inicial</small>
-    {{else}}
-      {{#if lastUpdateDate}}
-        <br><small>Último valor utilizado - {{lastUpdateDate}}</small>
-      {{else}}
-        <br><small>Último valor utilizado</small>
-      {{/if}}
-    {{/if}}
-  </div>
-</div>
-
-<script>
-// Sistema ultra simple sin automatismos
-document.getElementById('save-rate-btn').onclick = function() {
-  const rate = parseFloat(document.getElementById('eur-price-input').value);
-  
-  if (!rate || rate <= 0) {
-    alert('Ingrese un valor EUR válido');
-    return;
-  }
-  
-  this.disabled = true;
-  this.innerText = 'Actualizando...';
-  
-  fetch('/api/admin/update-prices', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ eurRate: rate })
-  })
-  .then(r => r.json())
-  .then(result => {
-    if (result.status === 'success') {
-      alert('✅ Precios actualizados: ' + result.data.updatedCount + ' productos');
-    } else {
-      alert('❌ Error: ' + result.message);
-    }
-  })
-  .catch(err => {
-    alert('❌ Error: ' + err.message);
-  })
-  .finally(() => {
-    this.disabled = false;
-    this.innerText = '💾 Actualizar Precios';
-  });
-};
-</script>
+<section class="card">
+  <h3>Precios</h3>
+  <p>
+    Los productos guardan su precio en euros (Ref.). El precio en bolívares se calcula con la tasa de abajo,
+    así que al cambiarla todos los precios se actualizan al instante. Los pedidos ya hechos conservan la tasa de su momento.
+  </p>
+  <form action="/admin/settings" method="POST" class="stacked-form narrow">
+    <label>Tasa EUR (Bs por 1 €)
+      <input type="number" name="eurRate" step="0.0001" min="0.0001" value="{{rate}}" required>
+    </label>
+    <label>Costo de envío (Ref. €)
+      <input type="number" name="shippingCostRef" step="0.01" min="0" value="{{shippingCostRef}}">
+    </label>
+    <button type="submit">Guardar</button>
+  </form>
+  {{#if rateUpdatedAt}}
+    <p><small>Última actualización de la tasa: {{formatDate rateUpdatedAt}}</small></p>
+  {{else}}
+    <p class="text-danger"><small>La tasa todavía no está configurada: la tienda no muestra precios en Bs ni permite comprar.</small></p>
+  {{/if}}
+</section>

@@ -12,7 +12,7 @@
  * 
  * Relaciones:
  * - Tiene UN carrito activo (carts.user)
- * - Puede tener MÚLTIPLES tickets de compra (tickets.purchaser)
+ * - Puede tener MÚLTIPLES tickets de compra (orders.user)
  * - Puede tener MÚLTIPLES órdenes (orders.user)
  * 
  * Seguridad implementada:
@@ -22,6 +22,27 @@
  */
 
 import mongoose from "mongoose";
+
+/**
+ * DIRECCIÓN DE ENVÍO
+ * Un usuario puede guardar varias; una se marca como predeterminada.
+ * La orden copia la dirección elegida, así que editarla después no
+ * cambia órdenes anteriores.
+ */
+const addressSchema = new mongoose.Schema(
+  {
+    label: { type: String, default: "Casa", trim: true },
+    recipient: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
+    line1: { type: String, required: true, trim: true },
+    line2: { type: String, default: "", trim: true },
+    city: { type: String, required: true, trim: true },
+    state: { type: String, required: true, trim: true },
+    reference: { type: String, default: "", trim: true },
+    isDefault: { type: Boolean, default: false },
+  },
+  { timestamps: false }
+);
 
 /**
  * ESQUEMA DE USUARIOS
@@ -44,7 +65,7 @@ const userSchema = new mongoose.Schema(
      * APELLIDO DEL USUARIO
      * Apellido(s) del usuario
      * - Junto con first_name forma el nombre completo
-     * - Se usa en tickets y facturas
+     * - Se usa en órdenes
      */
     last_name: {
       type: String,
@@ -176,6 +197,14 @@ const userSchema = new mongoose.Schema(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    /**
+     * DIRECCIONES DE ENVÍO
+     */
+    addresses: {
+      type: [addressSchema],
+      default: [],
     },
 
     /**

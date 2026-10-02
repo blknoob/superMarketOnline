@@ -1,30 +1,52 @@
-
-{{! Menú de categorías }}
 {{> categoriesMenu}}
 
-{{! Navegación breadcrumb general }}
 <div class="page-breadcrumb">
-  <span class="breadcrumb-item">
-    <a href="/">Inicio</a>
-  </span>
-  {{#if currentCategory}}
-    <span class="breadcrumb-separator">></span>
-    <span class="breadcrumb-item">{{currentCategory}}</span>
-  {{/if}}
-  {{#if currentSubCategory}}
-    <span class="breadcrumb-separator">></span>
-    <span class="breadcrumb-item current">{{currentSubCategory}}</span>
-  {{/if}}
+  <span class="breadcrumb-item"><a href="/">Inicio</a></span>
+  {{#each breadcrumb}}
+    <span class="breadcrumb-separator">›</span>
+    {{#if @last}}
+      <span class="breadcrumb-item current">{{name}}</span>
+    {{else}}
+      <span class="breadcrumb-item"><a href="/?category={{slug}}">{{name}}</a></span>
+    {{/if}}
+  {{/each}}
 </div>
 
-<h1>Nuestros productos</h1>
+<form action="/" method="GET" class="search-form">
+  {{#if currentCategorySlug}}<input type="hidden" name="category" value="{{currentCategorySlug}}">{{/if}}
+  <input type="search" name="q" value="{{search}}" placeholder="Buscar productos...">
+  <button type="submit">Buscar</button>
+</form>
 
-{{#if products}}
+{{#if subcategories.length}}
+  <div class="chips">
+    {{#each subcategories}}
+      <a class="chip" href="/?category={{slug}}">{{name}}</a>
+    {{/each}}
+  </div>
+{{/if}}
+
+{{> flash}}
+
+<h1>{{#if category}}{{category.name}}{{else}}Nuestros productos{{/if}}</h1>
+
+{{#unless exchangeRate}}
+  <div class="alert alert-info">Los precios en bolívares se mostrarán cuando la tienda configure la tasa del día.</div>
+{{/unless}}
+
+{{#if products.length}}
   <div class="products-list">
     {{#each products}}
       {{> productCard}}
     {{/each}}
   </div>
+  {{#if (eq pages 1)}}{{else}}
+    <nav class="pagination">
+      {{#if prevPage}}<a class="btn" href="?{{#if currentCategorySlug}}category={{currentCategorySlug}}&{{/if}}{{#if search}}q={{url search}}&{{/if}}page={{prevPage}}">‹ Anterior</a>{{/if}}
+      <span>Página {{page}} de {{pages}}</span>
+      {{#if nextPage}}<a class="btn" href="?{{#if currentCategorySlug}}category={{currentCategorySlug}}&{{/if}}{{#if search}}q={{url search}}&{{/if}}page={{nextPage}}">Siguiente ›</a>{{/if}}
+    </nav>
+  {{/if}}
 {{else}}
-  <p>No hay productos disponibles en esta categoría.</p>
+  <p>No hay productos disponibles{{#if category}} en esta categoría{{/if}}{{#if search}} para "{{search}}"{{/if}}.</p>
 {{/if}}

@@ -1,0 +1,89 @@
+{{> adminNav}}
+<p><a href="/admin/orders">‹ Pedidos</a></p>
+<h2>Pedido {{order.number}}</h2>
+{{> flash}}
+
+<p>
+  <span class="badge badge-{{order.status}}">{{order.statusLabel}}</span>
+  · {{formatDate order.createdAt}}
+  {{#if customer}} · {{customer.first_name}} {{customer.last_name}} ({{customer.email}}){{/if}}
+</p>
+
+{{#if payments.length}}
+  <section class="card">
+    <h3>Pagos</h3>
+    <table class="table">
+      <thead><tr><th>Fecha</th><th>Método</th><th>Referencia</th><th>Datos</th><th class="num">Monto</th><th>Comprobante</th><th>Estado</th></tr></thead>
+      <tbody>
+        {{#each payments}}
+          <tr>
+            <td>{{formatDate createdAt}}</td>
+            <td>{{methodLabel}}</td>
+            <td>{{reference}}</td>
+            <td><small>{{payer.bank}} {{payer.phone}} {{payer.docId}} {{payer.email}}</small></td>
+            <td class="num">{{money amount}} {{currency}}</td>
+            <td>{{#if proofUrl}}<a href="{{proofUrl}}" target="_blank" rel="noopener">Ver</a>{{/if}}</td>
+            <td>
+              {{#if (eq status "pending")}}
+                <form action="/admin/payments/{{_id}}/review" method="POST" class="inline-form">
+                  <input type="hidden" name="orderId" value="{{@root.order._id}}">
+                  <button type="submit" name="decision" value="approve" class="btn-small">Aprobar</button>
+                  <button type="submit" name="decision" value="reject" class="btn-small btn-danger">Rechazar</button>
+                </form>
+              {{else if (eq status "approved")}}Aprobado{{else}}Rechazado{{/if}}
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <p><small>Esperado: Bs {{money order.total}} (Ref. € {{money order.totalRef}})</small></p>
+  </section>
+{{/if}}
+
+{{#if transitions.length}}
+  <section class="card">
+    <h3>Cambiar estado</h3>
+    <form action="/admin/orders/{{order._id}}/status" method="POST" class="search-form">
+      <select name="status">
+        {{#each transitions}}<option value="{{value}}">{{label}}</option>{{/each}}
+      </select>
+      <input name="note" placeholder="Nota (opcional)">
+      <button type="submit">Aplicar</button>
+    </form>
+    <p><small>Cancelar devuelve los productos al stock.</small></p>
+  </section>
+{{/if}}
+
+<h3>Productos</h3>
+<table class="table">
+  <thead><tr><th>Producto</th><th class="num">Precio</th><th class="num">Cant.</th><th class="num">Subtotal</th></tr></thead>
+  <tbody>
+    {{#each order.items}}
+      <tr>
+        <td>{{name}} <small>({{presentation unitSize unit}} · {{sku}})</small></td>
+        <td class="num">Bs {{money price}}</td>
+        <td class="num">{{quantity}}</td>
+        <td class="num">Bs {{money subtotal}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+<div class="totals">
+  <p>Subtotal: Bs {{money order.subtotal}} · Envío: Bs {{money order.shippingCost}}</p>
+  <p><strong>Total: Bs {{money order.total}}</strong> <small>(tasa Bs {{money order.exchangeRate}})</small></p>
+</div>
+
+<h3>Envío</h3>
+<p>
+  {{order.shippingAddress.recipient}} ({{order.shippingAddress.phone}})<br>
+  {{order.shippingAddress.line1}}{{#if order.shippingAddress.line2}}, {{order.shippingAddress.line2}}{{/if}},
+  {{order.shippingAddress.city}}, {{order.shippingAddress.state}}
+  {{#if order.shippingAddress.reference}}<br><small>Ref: {{order.shippingAddress.reference}}</small>{{/if}}
+</p>
+
+<h3>Historial</h3>
+<ul>
+  {{#each order.statusHistory}}
+    <li>{{formatDate at}} — {{label}}{{#if note}}: {{note}}{{/if}}</li>
+  {{/each}}
+</ul>

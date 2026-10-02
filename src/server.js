@@ -61,6 +61,7 @@ import jwt from "jsonwebtoken";
 
 import indexRouter from "./routes/index.router.js";
 import UsersService from "./services/users.service.js";
+import CategoriesService from "./services/categories.service.js";
 
 dotenv.config();
 
@@ -261,6 +262,8 @@ const startServer = async () => {
     await connectDB();
     const admin = await new UsersService().ensureAdminUser();
     if (admin) console.log(`Administrador inicial creado: ${admin.email}`);
+    const categories = await new CategoriesService().seedDefaults();
+    if (categories) console.log(`Árbol de categorías inicial creado: ${categories} categorías`);
     app.listen(PORT, () => {
       console.log(`Servidor iniciado en el puerto ${PORT}`);
     });

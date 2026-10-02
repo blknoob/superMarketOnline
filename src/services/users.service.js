@@ -605,6 +605,43 @@ class UsersService {
   }
 
   /**
+   * DIRECCIONES DE ENVÍO
+   */
+  async getAddresses(userId) {
+    const user = await this.repository.findById(userId);
+    return user ? user.addresses.map((a) => (a.toObject ? a.toObject() : a)) : [];
+  }
+
+  async getAddress(userId, addressId) {
+    const addresses = await this.getAddresses(userId);
+    return addresses.find((a) => String(a._id) === String(addressId)) || null;
+  }
+
+  /**
+   * Guarda una dirección nueva. La primera queda como predeterminada.
+   */
+  async addAddress(userId, data) {
+    const required = { recipient: "destinatario", phone: "teléfono", line1: "dirección", city: "ciudad", state: "estado" };
+    for (const [field, label] of Object.entries(required)) {
+      if (!data[field] || !String(data[field]).trim()) throw new Error(`Falta el campo ${label}`);
+    }
+    const addresses = await this.getAddresses(userId);
+    const address = {
+      label: data.label || "Casa",
+      recipient: data.recipient,
+      phone: data.phone,
+      line1: data.line1,
+      line2: data.line2 || "",
+      city: data.city,
+      state: data.state,
+      reference: data.reference || "",
+      isDefault: addresses.length === 0,
+    };
+    const user = await this.repository.update(userId, { $push: { addresses: address } });
+    return user.addresses[user.addresses.length - 1].toObject();
+  }
+
+  /**
    * CREAR ADMINISTRADOR INICIAL
    * 
    * Si no existe ningún usuario con rol admin, crea uno con

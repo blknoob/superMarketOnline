@@ -53,3 +53,7 @@ pids
 
 # Yarn Integrity file
 .yarn-integrity
+# Archivos subidos por usuarios (comprobantes de pago e imágenes de productos)
+public/comprobantes/
+public/images/*
+!public/images/logo.supermarket.png

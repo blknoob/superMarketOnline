@@ -1,7 +1,7 @@
-# Documentación de API - E-commerce Backend
+# Documentación de API - SuperMarket Online
 
 ## Resumen
-API REST para aplicación de e-commerce con autenticación JWT, gestión de productos, carritos de compras y sistema de pagos.
+API REST del supermercado online: catálogo con categorías en árbol, carrito, pedidos y pagos manuales (Pago Móvil, transferencia, Zelle). La tienda web (Handlebars) usa los mismos servicios.
 
 ## Base URL
 ```
@@ -9,361 +9,183 @@ http://localhost:8080/api
 ```
 
 ## Autenticación
-La API utiliza JWT (JSON Web Tokens) para autenticación. El token debe enviarse en:
+La API utiliza JWT. El token se envía en:
 - Header: `Authorization: Bearer <token>`
-- Cookie: `access_token`
+- Cookie: `access_token` (la crea el login)
+
+## Modelo de datos
+
+| Colección | Contenido |
+|---|---|
+| `categories` | Árbol de categorías de profundidad libre. Cada una guarda `parent` y `ancestors` (de la raíz al padre). |
+| `brands` | Marcas. Se crean solas al cargar un producto con una marca nueva. |
+| `products` | Cada presentación es un producto (`sku` único, `barcode` opcional y único). Guarda `priceRef` en EUR, `category` y `categoryPath` (la categoría y sus ancestros). |
+| `users` | Usuarios con `addresses` (direcciones de envío). |
+| `carts` | Un carrito por usuario: `items: [{ product, quantity }]`. |
+| `orders` | Pedidos. Copian nombre, SKU, precios, tasa EUR y dirección del momento de la compra. |
+| `payments` | Pagos reportados por el cliente para un pedido, con su revisión. |
+| `settings` | Configuración: `eur_rate` (Bs por 1 €) y `shipping_cost_ref` (envío en €). |
+
+**Precios:** el producto guarda solo `priceRef` (EUR). El precio en Bs (`price`) se calcula al leerlo: `priceRef × eur_rate`. Si la tasa no está configurada, `price` es `null` y no se puede comprar.
+
+**Estados del pedido:** `pending_payment` → `payment_review` → `paid` → `preparing` → `shipped` → `delivered`. Antes de `shipped` se puede pasar a `canceled`, que devuelve el stock.
 
 ## Endpoints
 
-### Autenticación
+### Usuarios
 
 #### POST /users/register
-Registra un nuevo usuario.
-
-**Request Body:**
 ```json
 {
   "first_name": "string",
   "last_name": "string",
   "email": "string",
-  "password": "string",
-  "age": "number"
-}
-```
-
-**Response (201):**
-```json
-{
-  "status": "created",
-  "message": "Usuario creado correctamente",
-  "user": {
-    "_id": "string",
-    "first_name": "string",
-    "last_name": "string",
-    "email": "string",
-    "role": "string"
-  }
+  "password": "string (8+, mayúscula, minúscula, número y símbolo)",
+  "birth_date": "YYYY-MM-DD (mayor de 18 años)"
 }
 ```
 
 #### POST /users/login
-Inicia sesión de usuario.
-
-**Request Body:**
 ```json
-{
-  "email": "string",
-  "password": "string"
-}
+{ "email": "string", "password": "string" }
 ```
-
-**Response (200):**
-```json
-{
-  "status": "success",
-  "message": "Login exitoso",
-  "user": {
-    "_id": "string",
-    "first_name": "string",
-    "last_name": "string",
-    "email": "string",
-    "role": "string"
-  },
-  "token": "string"
-}
-```
+Devuelve la cookie `access_token`.
 
 #### GET /users/current
-Obtiene información del usuario actual.
+Usuario autenticado.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+### Categorías
 
-**Response (200):**
+#### GET /categories
+Árbol de categorías activas.
 ```json
 {
   "status": "success",
-  "user": {
-    "_id": "string",
-    "first_name": "string",
-    "last_name": "string",
-    "email": "string",
-    "role": "string"
-  }
+  "categories": [
+    { "_id": "…", "name": "Alimentación", "slug": "alimentacion", "children": [
+      { "_id": "…", "name": "Lácteos", "slug": "lacteos", "children": [] }
+    ] }
+  ]
 }
 ```
+
+#### POST /categories (admin)
+```json
+{ "name": "Quesos", "parentId": "<id de Lácteos> (opcional)", "order": 0 }
+```
+
+#### PUT /categories/:id (admin)
+`{ "name", "parentId", "order", "isActive" }`. Renombrar o mover actualiza los ancestros de toda la rama y el `categoryPath` de sus productos. No permite mover una categoría dentro de sí misma.
+
+#### DELETE /categories/:id (admin)
+Solo si no tiene subcategorías ni productos.
 
 ### Productos
 
 #### GET /products
-Obtiene lista de productos con paginación.
-
-**Query Parameters:**
-- `page` (number): Página actual (default: 1)
-- `limit` (number): Productos por página (default: 10)
-- `category` (string): Filtrar por categoría
-- `sort` (string): Ordenar por campo (price, title, etc.)
-
-**Response (200):**
+**Query:** `category` (slug; incluye todas las subcategorías), `q` (búsqueda de texto), `page` (24 por página).
 ```json
 {
   "status": "success",
   "products": [
     {
-      "_id": "string",
-      "title": "string",
-      "description": "string",
-      "price": "number",
-      "category": "string",
-      "stock": "number",
-      "image": "string"
+      "_id": "…", "name": "Leche Entera", "slug": "leche-entera-1l", "sku": "LEC-ENT-1L",
+      "brand": { "name": "La Pastoreña" }, "category": { "name": "Lácteos", "ancestors": [] },
+      "unit": "L", "unitSize": 1, "priceRef": 1.2, "price": 54.6, "stock": 10,
+      "images": ["/images/…"], "image": "/images/…", "isActive": true
     }
   ],
-  "totalPages": "number",
-  "currentPage": "number",
-  "totalProducts": "number"
+  "category": { … }, "page": 1, "pages": 1, "total": 1, "exchangeRate": 45.5
 }
 ```
 
 #### GET /products/:id
-Obtiene un producto específico.
+Detalle de un producto activo.
 
-**Response (200):**
+#### POST /products · PUT /products/:id (admin)
 ```json
 {
-  "status": "success",
-  "product": {
-    "_id": "string",
-    "title": "string",
-    "description": "string",
-    "price": "number",
-    "category": "string",
-    "stock": "number",
-    "image": "string"
-  }
+  "name": "Leche Entera", "sku": "LEC-ENT-1L", "barcode": "7591234000011",
+  "brandName": "La Pastoreña", "category": "<id de categoría>",
+  "unit": "und | kg | g | L | ml", "unitSize": 1,
+  "priceRef": 1.2, "stock": 10, "description": "…", "isActive": true
 }
 ```
 
-#### POST /products
-Crea un nuevo producto (Solo Admin).
+#### DELETE /products/:id (admin)
 
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
-```
+### Carrito (usuario autenticado)
 
-**Request Body (form-data):**
-- `title`: string
-- `description`: string
-- `category`: string
-- `code`: string
-- `price`: number
-- `stock`: number
-- `image`: file (opcional)
+| Método | Ruta | Body |
+|---|---|---|
+| GET | /carts | |
+| POST | /carts/products/:productId | `{ "quantity": 1 }` |
+| PUT | /carts/products/:productId | `{ "quantity": 3 }` (0 lo quita) |
+| DELETE | /carts/products/:productId | |
+| DELETE | /carts | (vacía el carrito) |
 
-**Response (201):**
-```json
-{
-  "status": "created",
-  "message": "Producto creado correctamente",
-  "product": {
-    "_id": "string",
-    "title": "string",
-    "description": "string",
-    "price": "number",
-    "category": "string",
-    "stock": "number",
-    "image": "string"
-  }
-}
-```
-
-### Carritos
-
-#### GET /carts
-Obtiene el carrito del usuario actual.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response (200):**
+Todas responden el carrito calculado:
 ```json
 {
   "status": "success",
   "cart": {
-    "_id": "string",
-    "user": "string",
-    "products": [
-      {
-        "product": {
-          "_id": "string",
-          "title": "string",
-          "price": "number"
-        },
-        "quantity": "number",
-        "_id": "string"
-      }
-    ]
+    "items": [{ "product": { … }, "quantity": 2, "price": 54.6, "subtotal": 109.2, "subtotalRef": 2.4, "available": true }],
+    "subtotal": 109.2, "subtotalRef": 2.4, "exchangeRate": 45.5,
+    "hasUnavailable": false, "isEmpty": false
   }
 }
 ```
+No permite superar el stock ni 100 unidades por producto.
 
-#### POST /carts/products/:productId
-Agrega producto al carrito.
+### Pedidos (usuario autenticado)
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Request Body:**
+#### POST /orders
+Crea el pedido con el carrito. Usa una dirección guardada o una nueva (se guarda en el perfil):
 ```json
-{
-  "quantity": "number" // opcional, default: 1
-}
+{ "addressId": "<id>" }
 ```
-
-**Response (200):**
 ```json
-{
-  "status": "success",
-  "message": "Producto agregado al carrito",
-  "cart": {
-    "_id": "string",
-    "products": [...]
-  }
-}
+{ "address": { "recipient": "Ana Pérez", "phone": "0414…", "line1": "Av. …", "line2": "", "city": "Caracas", "state": "Distrito Capital", "reference": "" } }
 ```
+Corre en una transacción: descuenta stock, crea el pedido y vacía el carrito. Si un producto no tiene stock suficiente, no se aplica ningún cambio.
 
-#### DELETE /carts/products/:productId
-Remueve producto del carrito.
+#### GET /orders
+Mis pedidos.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+#### GET /orders/:id
+Detalle de un pedido propio (404 si es de otro usuario).
 
-**Response (200):**
-```json
-{
-  "status": "success",
-  "message": "Producto removido del carrito",
-  "cart": {
-    "_id": "string",
-    "products": [...]
-  }
-}
-```
+### Pagos
+Se reportan desde la tienda web (`/orders/:id`, con comprobante opcional) y se revisan en el panel (`/admin/orders/:id`). Al aprobar el pago, el pedido pasa a `paid`; al rechazarlo, vuelve a `pending_payment`.
 
-### Órdenes y Pagos
+### Administración (admin)
 
-#### POST /checkout
-Crea una nueva orden a partir del carrito.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response (200):**
-```json
-{
-  "status": "success",
-  "message": "Orden creada correctamente",
-  "order": {
-    "_id": "string",
-    "user": "string",
-    "items": [...],
-    "total": "number",
-    "status": "pending_payment"
-  }
-}
-```
-
-#### POST /payments
-Registra un pago para una orden.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
-```
-
-**Request Body (form-data):**
-- `orderId`: string
-- `method`: string (pago_movil, zelle, transfer)
-- `amount`: number
-- `reference`: string
-- `proof`: file (opcional, para comprobante)
-
-**Response (200):**
-```json
-{
-  "status": "success",
-  "message": "Pago registrado correctamente",
-  "paymentIntent": {
-    "_id": "string",
-    "orderId": "string",
-    "method": "string",
-    "amount": "number",
-    "status": "pending"
-  }
-}
-```
-
-### Administración (Solo Admin)
-
-#### GET /admin/users
-Obtiene lista de todos los usuarios.
-
-**Headers:**
-```
-Authorization: Bearer <admin_token>
-```
+#### GET /admin/users · GET/PUT/DELETE /admin/users/:id
 
 #### PUT /admin/users/:id/role
-Actualiza el rol de un usuario.
-
-**Headers:**
-```
-Authorization: Bearer <admin_token>
-```
-
-**Request Body:**
 ```json
-{
-  "role": "string" // "user" | "admin"
-}
+{ "role": "user | admin" }
 ```
+
+La tasa EUR, el costo de envío, los pedidos y los pagos se administran desde el panel web (`/admin/panel`).
 
 ## Códigos de Error
 
 ### Errores Comunes
-- `400` - Bad Request: Datos inválidos
-- `401` - Unauthorized: Token requerido o inválido
-- `403` - Forbidden: Permisos insuficientes
-- `404` - Not Found: Recurso no encontrado
-- `500` - Internal Server Error: Error del servidor
+- `400` - Bad Request: datos inválidos o regla de negocio (sin stock, SKU repetido…). El motivo viene en `message`.
+- `401` - Unauthorized: token requerido o inválido
+- `403` - Forbidden: permisos insuficientes
+- `404` - Not Found: recurso no encontrado
+- `500` - Internal Server Error: error del servidor
 
 ### Códigos de Error Específicos
-- `TOKEN_REQUIRED`: Token de autenticación requerido
-- `TOKEN_INVALID`: Token inválido o expirado
-- `VALIDATION_ERROR`: Datos de validación incorrectos
-- `INSUFFICIENT_PERMISSIONS`: Permisos insuficientes
-- `INVALID_OBJECT_ID`: ID de MongoDB inválido
+- `TOKEN_REQUIRED`: token de autenticación requerido
+- `TOKEN_INVALID`: token inválido o expirado
+- `VALIDATION_ERROR`: datos de validación incorrectos
 
 ## Rate Limiting
 - Autenticación: 5 intentos por hora por IP
 - API general: 100 requests por minuto por IP
-
-## Versionado
-- API Version: v1
-- Última actualización: Diciembre 2024
 
 ## Notas de Seguridad
 - Todas las contraseñas son hasheadas con bcrypt

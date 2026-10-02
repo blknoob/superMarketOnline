@@ -1,31 +1,20 @@
 <div class="product-card">
   <div class="product-img-container">
     {{#if image}}
-      <img
-        class="product-img"
-        src="data:image/jpeg;base64,{{image}}"
-        alt="{{title}}"
-        style="max-width:60px; max-height:60px; border-radius:6px;"
-      />
+      <img class="product-img" src="{{image}}" alt="{{name}}" />
     {{else}}
-      <span style="color:#aaa;">Sin imagen</span>
+      <span class="product-img-placeholder">Sin imagen</span>
     {{/if}}
   </div>
-  <h3 class="product-title">{{title}}</h3>
-  <p class="product-price"><strong>Ref:</strong> €{{ref}}</p>
-  <p class="product-price"><strong>Precio:</strong> 
-    {{#if priceMetadata}}
-      ${{price}} EUR
-      {{!-- <small style="color: #666; font-size: 0.9em;">
-        (Cotización: {{priceMetadata.rate}} - {{priceMetadata.source}})
-      </small> --}}
-    {{else}}
-      ${{price}}
-    {{/if}}
-  </p>
-  <p class="product-desc">{{description}}</p>
+  {{#if brand}}<p class="product-brand">{{brand.name}}</p>{{/if}}
+  <h3 class="product-title">{{name}}</h3>
+  <p class="product-presentation">{{presentation unitSize unit}}</p>
+  {{#if price}}
+    <p class="product-price"><strong>Bs {{money price}}</strong></p>
+  {{/if}}
+  <p class="product-ref">Ref. € {{money priceRef}}</p>
   {{#if stock}}
-    <p class="product-stock"><strong>Stock:</strong> {{stock}}</p>
+    <p class="product-stock">Disponibles: {{stock}}</p>
     <form action="/cart/add" method="POST" class="product-form">
       <input type="hidden" name="productId" value="{{_id}}" />
       <button type="submit">Agregar al carrito</button>

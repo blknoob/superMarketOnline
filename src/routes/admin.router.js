@@ -29,12 +29,10 @@
  */
 import { Router } from "express";
 import AdminController from "../controllers/admin.controller.js";
-import ProductsController from "../controllers/products.controller.js";
 import { authenticateToken, isAdmin } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 const adminController = new AdminController();
-const productsController = new ProductsController();
 
 // Aplicar middlewares de seguridad a todas las rutas administrativas
 router.use(authenticateToken, isAdmin);
@@ -118,126 +116,6 @@ router.delete("/users/:id", adminController.deleteUser);
  */
 router.put("/users/:id/role", adminController.changeUserRole);
 
-/**
- * RUTAS DE GESTIÓN ADMINISTRATIVA DE PRODUCTOS
- * 
- * Endpoints privilegiados para administración de catálogo de productos
- * Operaciones que requieren permisos administrativos
- */
-
-/**
- * CREAR PRODUCTO
- * POST /admin/products
- * 
- * Creación administrativa de nuevo producto en catálogo
- * Acceso directo sin restricciones de usuario
- * 
- * BODY: Datos completos del producto
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: ProductsController.createProduct
- * RESPONSE: Producto creado (201) o error de validación
- */
-router.post("/products", productsController.createProduct);
-
-/**
- * ACTUALIZAR PRODUCTO
- * PUT /admin/products/:id
- * 
- * Actualización administrativa de producto existente
- * Modificación completa de cualquier campo del producto
- * 
- * PARAMS: id - ObjectId del producto
- * BODY: Campos a actualizar
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: ProductsController.updateProduct
- * RESPONSE: Producto actualizado o error 404
- */
-router.put("/products/:id", productsController.updateProduct);
-
-/**
- * ACTUALIZAR PRODUCTO VIA FORMULARIO
- * POST /admin/products/edit/:id
- * 
- * Actualización de producto desde formulario HTML (método POST)
- * Redirige al formulario con mensaje de éxito/error
- * 
- * PARAMS: id - ObjectId del producto
- * BODY: Campos a actualizar desde formulario
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: ProductsController.updateProduct
- * RESPONSE: Redirect con mensaje
- */
-router.post("/products/edit/:id", productsController.updateProduct);
-
-/**
- * ELIMINAR PRODUCTO
- * DELETE /admin/products/:id
- * 
- * Eliminación administrativa de producto del catálogo
- * Operación que afecta disponibilidad en tienda
- * 
- * PARAMS: id - ObjectId del producto
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: ProductsController.deleteProduct
- * RESPONSE: Confirmación de eliminación
- * WARNING: Puede afectar carritos y órdenes existentes
- */
-router.delete("/products/:id", productsController.deleteProduct);
-
-/**
- * ACTUALIZAR PRECIOS CON COTIZACIÓN EUR
- * POST /admin/update-prices
- * 
- * Actualiza todos los precios de productos basándose en cotización EUR manual
- * Aplica conversión y markup a precios base almacenados en EUR
- * 
- * BODY: { eurRate: number, markup?: number }
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: AdminController.updatePricesWithEurRate
- * RESPONSE: { success: boolean, updatedCount: number }
- * OPERATION: Actualización masiva de precios en base de datos
- */
-router.post("/update-prices", adminController.updatePricesWithEurRate);
-
-/**
- * MIGRAR CAMPO REF A PRODUCTOS EXISTENTES
- * POST /admin/migrate-ref
- * 
- * Endpoint temporal para agregar campo ref a productos existentes
- * Copia el valor actual de price al nuevo campo ref
- * 
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: AdminController.migrateRefField
- * RESPONSE: { success: boolean, updatedCount: number }
- * OPERATION: Migración de datos una sola vez
- */
-router.post("/migrate-ref", adminController.migrateRefField);
-
-/**
- * RESTAURAR PRECIOS ORIGINALES
- * POST /admin/restore-prices
- * 
- * Restaura precios a sus valores originales
- * Copia el campo ref de vuelta al campo price
- * 
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: AdminController.restorePrices
- * RESPONSE: { success: boolean, restoredCount: number }
- * OPERATION: Restaurar precios dañados por actualizaciones automáticas
- */
-router.post("/restore-prices", authenticateToken, isAdmin, adminController.restorePrices);
-
-/**
- * FIJAR REF EN VALOR CORRECTO
- * POST /admin/fix-ref
- * 
- * Fija el campo ref en 6 para todos los productos
- * Para reparar valores de ref multiplicados incorrectamente
- * 
- * MIDDLEWARE: authenticateToken + isAdmin
- * CONTROLLER: AdminController.fixRefValues
- * RESPONSE: { success: boolean, fixedCount: number }
- */
-router.post("/fix-ref", authenticateToken, isAdmin, adminController.fixRefValues);
+// Productos y categorías se administran en /api/products y /api/categories
 
 export default router;

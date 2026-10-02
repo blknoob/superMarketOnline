@@ -1,38 +1,62 @@
-<h2>Mi Carrito</h2>
+<h2>Mi carrito</h2>
+{{> flash}}
 
-{{#if cart.products.length}}
-  <table style="width:100%; border-collapse:collapse;">
+{{#if cart.isEmpty}}
+  <p>Tu carrito está vacío. <a href="/">Ver productos</a></p>
+{{else}}
+  <table class="table">
     <thead>
       <tr>
-        <th style="border-bottom:1px solid #ccc; text-align:left;">Producto</th>
-        <th style="border-bottom:1px solid #ccc; text-align:right;">Precio</th>
-        <th style="border-bottom:1px solid #ccc; text-align:right;">Cantidad</th>
-        <th style="border-bottom:1px solid #ccc; text-align:right;">Subtotal</th>
+        <th>Producto</th>
+        <th class="num">Precio</th>
+        <th class="num">Cantidad</th>
+        <th class="num">Subtotal</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      {{#each cart.products}}
-        <tr>
-          <td>{{product.title}}</td>
-          <td style="text-align:right;">${{product.price}}</td>
-          <td style="text-align:right;">{{quantity}}</td>
-          <td style="text-align:right;">${{multiply product.price quantity}}</td>
-          <td style="text-align:right;">
-            <form action="/cart/remove" method="POST" style="display:inline;">
-              <input type="hidden" name="productId" value="{{product._id}}" />
-              <button type="submit" style="color:red;">Quitar</button>
+      {{#each cart.items}}
+        <tr {{#unless available}}class="row-warning"{{/unless}}>
+          <td>
+            {{product.name}} <small>({{presentation product.unitSize product.unit}})</small>
+            {{#unless available}}
+              <br><small class="text-danger">
+                {{#if product.isActive}}Solo quedan {{product.stock}} disponibles{{else}}Ya no está disponible{{/if}}
+              </small>
+            {{/unless}}
+          </td>
+          <td class="num">Bs {{money price}}<br><small>Ref. € {{money product.priceRef}}</small></td>
+          <td class="num">
+            <form action="/cart/update" method="POST" class="inline-form">
+              <input type="hidden" name="productId" value="{{product._id}}">
+              <input type="number" name="quantity" value="{{quantity}}" min="0" max="100" class="qty-input">
+              <button type="submit" class="btn-small">Actualizar</button>
+            </form>
+          </td>
+          <td class="num">Bs {{money subtotal}}</td>
+          <td class="num">
+            <form action="/cart/remove" method="POST" class="inline-form">
+              <input type="hidden" name="productId" value="{{product._id}}">
+              <button type="submit" class="btn-small btn-danger">Quitar</button>
             </form>
           </td>
         </tr>
       {{/each}}
     </tbody>
   </table>
-  <p style="text-align:right; font-weight:bold; margin-top:1rem;">
-    Total: ${{sumCartTotal cart.products}}
-  </p>
-  <form action="/cart/checkout" method="POST" style="text-align:right; margin-top:1rem;">
-    <button type="submit" style="font-weight:bold;">Finalizar compra</button>
-  </form>
-{{else}}
-  <p>Tu carrito está vacío.</p>
+
+  <div class="totals">
+    <p>Subtotal: <strong>Bs {{money cart.subtotal}}</strong> <small>(Ref. € {{money cart.subtotalRef}})</small></p>
+  </div>
+
+  <div class="actions">
+    <form action="/cart/clear" method="POST" class="inline-form">
+      <button type="submit" class="btn-danger">Vaciar carrito</button>
+    </form>
+    {{#if cart.hasUnavailable}}
+      <span class="text-danger">Ajusta los productos marcados para continuar.</span>
+    {{else}}
+      <a class="btn" href="/checkout">Continuar con la compra</a>
+    {{/if}}
+  </div>
 {{/if}}

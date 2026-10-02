@@ -1,0 +1,32 @@
+{{> adminNav}}
+<h2>Pedidos</h2>
+{{> flash}}
+
+<form action="/admin/orders" method="GET" class="search-form">
+  <select name="status" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {{#each statuses}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+  </select>
+</form>
+
+{{#if orders.length}}
+  <table class="table">
+    <thead>
+      <tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th class="num">Total</th><th></th></tr>
+    </thead>
+    <tbody>
+      {{#each orders}}
+        <tr>
+          <td>{{number}}</td>
+          <td>{{formatDate createdAt}}</td>
+          <td>{{user.first_name}} {{user.last_name}}<br><small>{{user.email}}</small></td>
+          <td><span class="badge badge-{{status}}">{{statusLabel}}</span></td>
+          <td class="num">Bs {{money total}}</td>
+          <td class="num"><a href="/admin/orders/{{_id}}">Ver</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <p>No hay pedidos.</p>
+{{/if}}

@@ -13,9 +13,8 @@
  * - users: Autenticación y gestión de usuarios
  * - products: Catálogo y administración de productos
  * - carts: Carrito de compras y operaciones
- * - tickets: Comprobantes y facturación
- * - checkout: Proceso de finalización de compra
- * - payments: Procesamiento de diferentes métodos de pago
+ * - categories: Árbol de categorías
+ * - orders: Pedidos del usuario
  * - admin: Herramientas administrativas privilegiadas
  * - views: Renderizado de interfaces web
  * 
@@ -39,10 +38,9 @@ import { Router } from "express";
 import usersRouter from "./users.router.js";
 import productsRouter from "./products.router.js";
 import cartsRouter from "./carts.router.js";
-import ticketsRouter from "./tickets.router.js";
 import adminRouter from "./admin.router.js";
-import checkoutRouter from "./checkout.router.js";
-import paymentsRouter from "./payments.router.js";
+import categoriesRouter from "./categories.router.js";
+import ordersRouter from "./orders.router.js";
 import currencyRouter from "./currency.router.js";
 import authRouter from "./auth.router.js";
 import viewsRouter from "./views.router.js";
@@ -102,28 +100,22 @@ router.use("/api/users", usersRouter);
 router.use("/api/products", productsRouter);
 
 /**
+ * API DE CATEGORÍAS - /api/categories/*
+ * Árbol de categorías del catálogo
+ */
+router.use("/api/categories", categoriesRouter);
+
+/**
+ * API DE ÓRDENES - /api/orders/*
+ * Pedidos del usuario autenticado
+ */
+router.use("/api/orders", ordersRouter);
+
+/**
  * API DE CARRITOS - /api/carts/*
  * Gestión de carrito de compras y operaciones relacionadas
  */
 router.use("/api/carts", cartsRouter);
-
-/**
- * API DE TICKETS - /api/tickets/*
- * Comprobantes de compra y gestión de facturación
- */
-router.use("/api/tickets", ticketsRouter);
-
-/**
- * API DE CHECKOUT - /api/checkout/*
- * Proceso de finalización de compra y generación de órdenes
- */
-router.use("/api/checkout", checkoutRouter);
-
-/**
- * API DE PAGOS - /api/payments/*
- * Procesamiento de diferentes métodos de pago y webhooks
- */
-router.use("/api/payments", paymentsRouter);
 
 /**
  * API DE COTIZACIÓN - /api/currency/*

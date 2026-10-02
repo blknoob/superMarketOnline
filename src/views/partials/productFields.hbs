@@ -1,0 +1,29 @@
+{{! Campos del formulario de producto (alta y edición). Usa product, categories, brands y units del contexto raíz }}
+<label>Nombre <input name="name" value="{{@root.product.name}}" required></label>
+<label>SKU <input name="sku" value="{{@root.product.sku}}" required placeholder="LEC-ENT-1L"></label>
+<label>Código de barras <input name="barcode" value="{{@root.product.barcode}}" placeholder="(opcional)"></label>
+<label>Marca
+  <input name="brandName" value="{{@root.product.brand.name}}" list="brand-list" placeholder="(opcional)">
+  <datalist id="brand-list">{{#each @root.brands}}<option value="{{name}}">{{/each}}</datalist>
+</label>
+<label>Categoría
+  <select name="category" required>
+    <option value="">Elegir...</option>
+    {{#each @root.categories}}
+      <option value="{{_id}}" {{#if (eq _id @root.product.category._id)}}selected{{/if}}>{{label}}</option>
+    {{/each}}
+  </select>
+</label>
+<label>Presentación
+  <span class="input-pair">
+    <input type="number" name="unitSize" step="0.001" min="0.001" value="{{#if @root.product}}{{@root.product.unitSize}}{{else}}1{{/if}}" required>
+    <select name="unit">
+      {{#each @root.units}}<option value="{{this}}" {{#if (eq this @root.product.unit)}}selected{{/if}}>{{this}}</option>{{/each}}
+    </select>
+  </span>
+</label>
+<label>Precio Ref. (€) <input type="number" name="priceRef" step="0.01" min="0" value="{{@root.product.priceRef}}" required></label>
+<label>Stock <input type="number" name="stock" step="1" min="0" value="{{#if @root.product}}{{@root.product.stock}}{{else}}0{{/if}}" required></label>
+<label class="full">Descripción <textarea name="description" rows="2">{{@root.product.description}}</textarea></label>
+<label>Imagen <input type="file" name="image" accept="image/*"></label>
+<label class="checkbox"><input type="checkbox" name="isActive" {{#if @root.product}}{{#if @root.product.isActive}}checked{{/if}}{{else}}checked{{/if}}> Visible en la tienda</label>

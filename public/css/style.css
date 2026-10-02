@@ -426,3 +426,59 @@ button:hover, .btn:hover {
 .alert-success { background: #e8f5e9; color: var(--primary-dark); }
 .alert-danger { background: #ffebee; color: var(--danger); }
 .alert-info { background: #e3f2fd; color: #1565c0; }
+
+/* ====== Tienda: búsqueda, chips, paginación ====== */
+.search-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.search-form input[type="search"], .search-form input[name="name"], .search-form input[name="note"] { flex: 1; min-width: 160px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 16px; }
+.chip { padding: 6px 14px; border-radius: 999px; background: var(--white); box-shadow: var(--shadow); font-size: 0.9rem; }
+.chip:hover { background: var(--accent); color: var(--white); }
+.pagination { display: flex; gap: 12px; align-items: center; justify-content: center; margin: 24px 0; }
+.product-brand { margin: 0; font-size: 0.8rem; color: #777; text-transform: uppercase; letter-spacing: 0.04em; }
+.product-presentation { margin: 0 0 6px; color: #555; font-size: 0.9rem; }
+.product-ref { margin: 0; color: #777; font-size: 0.85rem; }
+
+/* ====== Tablas y totales ====== */
+.table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; }
+.table th, .table td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
+.table th { background: #f0f5f0; font-size: 0.9rem; }
+.table .num { text-align: right; }
+.row-warning { background: #fff8e1; }
+.row-muted { opacity: 0.55; }
+.thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
+.thumb-large { max-width: 160px; border-radius: 10px; margin-bottom: 12px; }
+.totals { text-align: right; margin: 8px 0 16px; }
+.totals p { margin: 4px 0; }
+.actions { display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.text-danger { color: var(--danger); }
+
+/* ====== Formularios ====== */
+.inline-form { display: inline-flex; gap: 6px; align-items: center; margin: 0; }
+.qty-input { width: 70px; }
+.btn-small { padding: 4px 10px; font-size: 0.85rem; }
+.btn-danger { background: var(--danger); }
+.stacked-form { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
+.stacked-form.narrow { max-width: 320px; }
+.stacked-form label, .grid-form label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; font-size: 0.9rem; }
+.grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; margin-top: 12px; }
+.grid-form .full { grid-column: 1 / -1; }
+label.checkbox { flex-direction: row; align-items: center; gap: 6px; }
+.input-pair { display: flex; gap: 6px; }
+.input-pair input { flex: 1; min-width: 0; }
+.radio-card { display: flex !important; flex-direction: row !important; gap: 10px; align-items: flex-start; padding: 10px; background: var(--white); border-radius: 10px; box-shadow: var(--shadow); font-weight: normal !important; }
+.new-address { display: flex; flex-direction: column; gap: 8px; border: 1px solid #ddd; border-radius: 10px; }
+.two-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 16px; }
+.category-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; }
+.category-row .indent { display: inline-block; }
+
+/* ====== Administración ====== */
+.admin-nav { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; font-weight: 700; }
+
+/* ====== Estados de pedidos y pagos ====== */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #eee; color: #333; }
+.badge-pending_payment, .badge-payment-pending { background: #fff3e0; color: #e65100; }
+.badge-payment_review { background: #e3f2fd; color: #1565c0; }
+.badge-paid, .badge-payment-approved, .badge-delivered { background: #e8f5e9; color: var(--primary-dark); }
+.badge-preparing, .badge-shipped { background: #ede7f6; color: #4527a0; }
+.badge-canceled, .badge-payment-rejected { background: #ffebee; color: var(--danger); }

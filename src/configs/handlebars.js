@@ -51,7 +51,7 @@ const __dirname = path.dirname(__filename);
  * CASOS DE USO:
  * - Renderizado de páginas principales
  * - Cálculo de totales en carrito
- * - Formateo de fechas de tickets
+ * - Formateo de fechas de pedidos
  * - Comparaciones condicionales en templates
  * 
  * @function configureHandlebars
@@ -70,17 +70,16 @@ const configureHandlebars = (app) => {
       allowProtoPropertiesByDefault: true,
       allowProtoMethodsByDefault: true,
       helpers: {
-        multiply: (a, b) => a * b,
-        sumCartTotal: function (cart) {
-          if (!Array.isArray(cart)) return 0;
-          return cart.reduce((total, item) => {
-            if (item && typeof item.price === "number") {
-              return total + item.price * (item.quantity || 1);
-            }
-            return total;
-          }, 0);
-        },
-        eq: (a, b) => a === b,
+        // Compara también ObjectIds con strings
+        eq: (a, b) => a === b || (a != null && b != null && String(a) === String(b)),
+        // 1234.5 → "1.234,50"
+        money: (value) =>
+          value === null || value === undefined
+            ? "—"
+            : Number(value).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        url: (value) => encodeURIComponent(value ?? ""),
+        // Presentación del producto: "1 L", "500 g", "12 und"
+        presentation: (unitSize, unit) => `${unitSize ?? 1} ${unit || "und"}`,
         formatDate: function(date) {
           if (!date) return '';
           const d = new Date(date);

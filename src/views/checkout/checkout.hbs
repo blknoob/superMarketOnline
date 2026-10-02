@@ -1,0 +1,58 @@
+<h2>Finalizar compra</h2>
+{{> flash}}
+
+<div class="two-columns">
+  <section>
+    <h3>Dirección de envío</h3>
+    <form action="/checkout" method="POST" class="stacked-form">
+      {{#each addresses}}
+        <label class="radio-card">
+          <input type="radio" name="addressId" value="{{_id}}" {{#if isDefault}}checked{{/if}}>
+          <span>
+            <strong>{{label}}</strong> — {{recipient}} ({{phone}})<br>
+            {{line1}}{{#if line2}}, {{line2}}{{/if}}, {{city}}, {{state}}
+            {{#if reference}}<br><small>Ref: {{reference}}</small>{{/if}}
+          </span>
+        </label>
+      {{/each}}
+
+      <label class="radio-card">
+        <input type="radio" name="addressId" value="new" {{#unless addresses.length}}checked{{/unless}}>
+        <span><strong>Usar una dirección nueva</strong> (se guardará en tu perfil)</span>
+      </label>
+
+      <fieldset class="new-address">
+        <legend>Dirección nueva</legend>
+        <label>Nombre <input name="label" placeholder="Casa, Oficina..."></label>
+        <label>Quién recibe <input name="recipient"></label>
+        <label>Teléfono <input name="phone"></label>
+        <label>Dirección <input name="line1" placeholder="Calle, número, edificio"></label>
+        <label>Detalle <input name="line2" placeholder="Piso, apartamento (opcional)"></label>
+        <label>Ciudad <input name="city"></label>
+        <label>Estado <input name="state"></label>
+        <label>Punto de referencia <input name="reference" placeholder="(opcional)"></label>
+      </fieldset>
+
+      <button type="submit">Confirmar pedido</button>
+    </form>
+  </section>
+
+  <section>
+    <h3>Resumen</h3>
+    <table class="table">
+      <tbody>
+        {{#each cart.items}}
+          <tr>
+            <td>{{quantity}} × {{product.name}} <small>({{presentation product.unitSize product.unit}})</small></td>
+            <td class="num">Bs {{money subtotal}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="totals">
+      <p>Subtotal: Bs {{money cart.subtotal}}</p>
+      <p>Envío: Ref. € {{money shippingCostRef}}</p>
+      <p><small>Tasa del día: Bs {{money cart.exchangeRate}} por €. El total final se calcula al confirmar.</small></p>
+    </div>
+  </section>
+</div>
