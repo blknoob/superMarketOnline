@@ -27,6 +27,12 @@ import jwt from "jsonwebtoken";
 const router = Router();
 const { JWT_SECRET } = process.env;
 
+// Si el proveedor OAuth no está configurado, volver al login en lugar de fallar
+router.use("/:provider", (req, res, next) => {
+  if (passport._strategy(req.params.provider)) return next();
+  res.redirect(`/login?error=${req.params.provider}_not_configured`);
+});
+
 /**
  * GOOGLE OAUTH - INICIAR AUTENTICACIÓN
  * GET /auth/google
